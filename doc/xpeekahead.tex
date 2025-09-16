@@ -1,0 +1,353 @@
+%%%==============================================================================
+% WinEdt pragmas
+% !Mode:: "TeX:EN"
+% Default Compile engines:
+% !TEX program = pdflatex
+% !PDFTeXify ext =  --enable-etex  --restrict-write18
+% !PDFLaTeX ext  =  --enable-etex  --restrict-write18
+% !BIB program = biber
+%%%==============================================================================
+%% Copyright 2025-present by Alceu Frigeri
+%%
+%% This work may be distributed and/or modified under the conditions of
+%%
+%% * The [LaTeX Project Public License](http://www.latex-project.org/lppl.txt),
+%%   version 1.3c (or later), and/or
+%% * The [GNU Affero General Public License](https://www.gnu.org/licenses/agpl-3.0.html),
+%%   version 3 (or later)
+%%
+%% This work has the LPPL maintenance status *maintained*.
+%%
+%% The Current Maintainer of this work is Alceu Frigeri
+%%
+%% This is version {1.0} {2025/10/16}
+%%
+%% The list of files that compose this work can be found in the README.md file at
+%% https://ctan.org/pkg/xpeekahead
+%%
+%%%==============================================================================
+\documentclass[10pt]{article}
+\RequirePackage[verbose,a4paper,marginparwidth=27.5mm,top=2.5cm,bottom=1.5cm,hmargin={40mm,20mm},marginparsep=2.5mm,columnsep=10mm,asymmetric]{geometry}
+\usepackage{codedescribe}
+\RequirePackage[inline]{enumitem}
+\SetEnumitemKey{miditemsep}{parsep=0ex,itemsep=0.4ex}
+
+\usepackage{xpeekahead}
+
+%% if needed
+\RequirePackage[backend=biber]{biblatex}
+\addbibresource{xpeekahead.bib}
+
+
+\RequirePackage[hidelinks,hypertexnames=false]{hyperref}
+
+\begin{document}
+\tstitle{
+  author={Alceu Frigeri\footnote{\tsverb{https://github.com/alceu-frigeri/xpeekahead}}},
+  date={\tsdate},
+  title={The xpeekahead Package\break  Version \PkgInfo{xpeekahead}{version}}
+  }
+  
+
+\begin{typesetabstract}
+ 
+This package offers a few commands aiming at peeking ahead environments and commands in simple cases. It's based on \tsobj[pkg]{expl3} and a question at stackexchange \cite{stackexchange}.
+\end{typesetabstract}
+
+\tableofcontents
+
+\section{Introduction}
+
+\tsobj[pkg]{expl3} offers a solid base for programmatically peeking ahead (with the many \tsobj{\peek_} commands), nevertheless some constructions might be extensive and, at times, tricky. This package is focused in two cases:
+\begin{itemize}
+  \item detecting the first token (perhaps a command) past the end of the current one, ignoring all spaces, blanks, new lines.
+  \item same, but past the end of an environment (the tricky part)
+\end{itemize}
+This should be enough in most cases where one wants to fine tune formatting, e.g. spacing, based on what follows. 
+
+Two sets of commands are defined, one to be used in a \tsobj[pkg]{expl3} package (see \ref{expl3-cmds}), and another for use in a \LaTeXe\ code regimé (see \ref{2e-cmds}).
+\begin{tsremark}
+  In fact, given \tsobj{\peek_regex:} flexibility, it is possible to construct a regular expression that will look past a single/few tokens, in which case one is probably best served with the \tsobj[pkg]{expl3} \tsobj{\peek_} functions.
+\end{tsremark}
+\begin{tsremark}
+  The \LaTeXe\ commands at \ref{2e-cmds} are just aliases to the \tsobj[pkg]{expl3} commands at \ref{expl3-cmds}.
+\end{tsremark}
+
+\newpage
+
+\section{Expl3 Commands}\label{expl3-cmds}
+
+When peeking ahead one needs a regular expression to match against, in the commands \ref{peek-expl3}  there is the option of given said regular expression ``directly'' (best in most cases) or through a pre-defined command (better, if, for instance, the very same regular expression has to be re-used many times).
+
+\subsection{Defining Action Commands}\label{cmd-def-expl3}
+ 
+\begin{codedescribe}{\xpeekahead_set:Nnnn, \xpeekahead_gset:Nnnn}
+\begin{codesyntax}%
+\tsmacro{\xpeekahead_set:Nnnn}{cmd,regex,if-true,if-false}
+\tsmacro{\xpeekahead_gset:Nnnn}{cmd,regex,if-true,if-false}
+\end{codesyntax}
+These will create a new command \tsobj[marg]{cmd}, the peeked ahead token(s) will be compared with \tsobj[marg]{regex} and \tsobj[marg,sep=or]{if-true,if-false} will be left on the input stream, before the peeked ahead token(s). For instance, \tsobj[verb]{\c{begin}\cB{envx}} will match \tsobj[verb]{\begin{envx}}.
+
+The \tsobj{\xpeekahead_set:} will create the new command in the current group, whilst  \tsobj{\xpeekahead_gset:} will create it grobally
+\end{codedescribe}
+\begin{tsremark}
+  \tsobj[marg]{regex} can be any valid Regular Expression, as described in \cite{expl3}, in particular take a look on the section \emph{Matching exact tokens}.
+\end{tsremark}
+\begin{tsremark}[\color{red}Warning:]
+  These commands won't check if \tsobj[marg]{cmd} is already defined, and will overwrite any previous definition.
+\end{tsremark}
+
+
+\subsection{Peeking Ahead}\label{peek-expl3}
+
+\begin{codedescribe}{\xpeekahead_cmd_peek:N, \xpeekahead_cmd_peek:nnn}
+\begin{codesyntax}%
+\tsmacro{\xpeekahead_cmd_peek:N}{cmd}
+\tsmacro{\xpeekahead_cmd_peek:nnn}{regex,if-true,if-false}
+\end{codesyntax}
+Those are for the most simple cases, where \tsobj[code,sep=or]{\xpeekahead_cmd_peek:N,\xpeekahead_cmd_peek:nnn} will be placed at the very end of a command definition. \tsobj[marg]{regex,if-true,if-false} are the same as defined in \ref{cmd-def-expl3} and \tsobj[marg]{cmd} is any command defined using \tsobj[code,sep=or]{\xpeekahead_set:Nnnn, \xpeekahead_gset:Nnnn}.
+\end{codedescribe}
+
+
+\begin{codedescribe}{\xpeekahead_env_set:nN, \xpeekahead_env_set:nnnn}
+\begin{codesyntax}%
+\tsmacro{\xpeekahead_env_set:nN}{env-name,cmd}
+\tsmacro{\xpeekahead_env_set:nnnn}{env-name,regex,if-true,if-false}
+\end{codesyntax}
+Those are for the cases where one wants to detect what comes after the end of an environment. In this case, those commands are to be placed in the ``beginning part'' of an environment definition. Note that the peek ahead command will be injected past the end of the environment, meaning any local assignment made inside of the environment won't be accessible. 
+
+\tsobj[marg]{regex,if-true,if-false} are the same as defined in \ref{cmd-def-expl3} and \tsobj[marg]{cmd} is any command defined using \tsobj[code,sep=or]{\xpeekahead_set:Nnnn, \xpeekahead_gset:Nnnn}.
+\end{codedescribe}
+\begin{tsremark}[\color{red}Important:]
+  The \tsobj[marg]{env-name} HAS TO BE the name of the environment being defined. It will be used by the injected function to evaluate if it should peek ahead or not (in case it's called in the context of another  (inner) environment).
+\end{tsremark}
+\begin{tsremark}
+  Those commands are reentrant safe, meaning, the resulting environment can be nested as needed.
+\end{tsremark}
+\begin{tsremark}[\color{red}Warning:]
+  The peek ahead command injection assumes that the macro ``end '' (with an space at the end of it) doesn't change (thanks David, \cite{stackexchange}). Since the macro capture is done at the first call to \tsobj{\xpeekahead_env_set:} it should be safe.
+\end{tsremark}
+
+\newpage
+
+\section{LaTeX2e Commands}\label{2e-cmds}
+When peeking ahead one needs a regular expression to match against, in the commands \ref{peek-2e}  there is the option of given said regular expression ``directly'' (best in most cases) or through a pre-defined command (better, if, for instance, the very same regular expression has to be re-used many times).
+
+
+\subsection{Defining Action Commands}\label{cmd-def-2e}
+\begin{codedescribe}{\xpeekSetCmd, \xpeekSetCmdGlobal}
+\begin{codesyntax}%
+\tsmacro{\xpeekSetCmd}{cmd,regex,if-true,if-false}
+\tsmacro{\xpeekSetCmdGlobal}{cmd,regex,if-true,if-false}
+\end{codesyntax}
+These will create a new command \tsobj[marg]{cmd}, the peeked ahead token(s) will be compared with \tsobj[marg]{regex} and \tsobj[marg,sep=or]{if-true,if-false} will be left on the input stream, before the peeked ahead token(s). For instance, \tsobj[verb]{\c{begin}\cB{envx}} will match \tsobj[verb]{\begin{envx}}.
+
+The \tsobj{\xpeekSetCmd} will create the new command in the current group, whilst  \tsobj{\xpeekSetCmdGlobal} will create it grobally
+\end{codedescribe}
+\begin{tsremark}
+  \tsobj[marg]{regex} can be any valid Regular Expression, as described in \cite{expl3}, in particular take a look on the section \emph{Matching exact tokens}.
+\end{tsremark}
+\begin{tsremark}[\color{red}Warning:]
+  These commands won't check if \tsobj[marg]{cmd} is already defined, and will overwrite any previous definition.
+\end{tsremark}
+
+
+\subsection{Peeking Ahead}\label{peek-2e}
+
+\begin{codedescribe}{\xpeekTokCmd, \xpeekTok}
+\begin{codesyntax}%
+\tsmacro{\xpeekTokCmd}{cmd}
+\tsmacro{\xpeekTok}{regex,if-true,if-false}
+\end{codesyntax}
+Those are for the most simple cases, where \tsobj[code,sep=or]{\xpeekTokCmd,\xpeekTok} will be placed at the very end of a command definition. \tsobj[marg]{regex,if-true,if-false} are the same as defined in \ref{cmd-def-2e} and \tsobj[marg]{cmd} is any command defined using \tsobj[code,sep=or]{\xpeekSetCmd, \xpeekSetCmdGlobal}.
+\end{codedescribe}
+
+
+\begin{codedescribe}{\xpeekEnvCmd, \xpeekEnv}
+\begin{codesyntax}%
+\tsmacro{\xpeekEnvCmd}{env-name,cmd}
+\tsmacro{\xpeekEnv}{env-name,regex,if-true,if-false}
+\end{codesyntax}
+Those are for the cases where one wants to detect what comes after the end of an environment. In this case, those commands are to be placed in the ``beginning part'' of an environment definition. Note that the peek ahead command will be injected past the end of the environment, meaning any local assignment made inside of the environment won't be accessible. 
+
+\tsobj[marg]{regex,if-true,if-false} are the same as defined in \ref{cmd-def-2e} and \tsobj[marg]{cmd} is any command defined using \tsobj[code,sep=or]{\xpeekSetCmd, \xpeekSetCmdGlobal}.
+\end{codedescribe}
+\begin{tsremark}[\color{red}Important:]
+  The \tsobj[marg]{env-name} HAS TO BE the name of the environment being defined. It will be used by the injected function to evaluate if it should peek ahead or not (in case it's called in the context of another (inner) environment).
+\end{tsremark}
+\begin{tsremark}
+  Those commands are reentrant safe, meaning, the resulting environment can be nested as needed.
+\end{tsremark}
+\begin{tsremark}[\color{red}Warning:]
+  The peek ahead command injection assumes that the macro ``end '' (with an space at the end of it) doesn't change (thanks David, \cite{stackexchange}). Since the macro capture is done at the first call to \tsobj[code,sep=or]{\xpeekEnv,\xpeekEnvCmd} it should be safe.
+\end{tsremark}
+
+\newpage 
+
+\section{Examples}
+
+To keep things simple, in the examples below \LaTeXe\ syntax will be used, since they are just aliases to their \tsobj[pkg]{expl3} counter parts. 
+
+\subsection{Peeking Ahead Simple Commands}
+Note that, in this first example, the \tsobj{\xpeekTok,\xpeekTokCmd} were the last commands on  commands \tsobj{\cmdA,\cmdB}.
+
+Of course, in a more real case, one will (instead of adding some conditional text as in those examples) perhaps adjust vertical spacing and/or setting auxiliary variables, etc.
+
+\setnewcodekey{xpeekdemo}{codeprefix={},resultprefix={},letter={@,_},
+  keywd2={
+    xpeekahead_set:Nnnn, xpeekahead_gset:Nnnn, xpeekahead_cmd_peek:N, xpeekahead_cmd_peek:nnn,
+    xpeekahead_env_set:nN, xpeekahead_env_set:nnnn,
+    xpeekSetCmd,xpeekSetCmdGlobal, xpeekTokCmd, xpeekTok, xpeekEnvCmd, xpeekEnv
+    },
+  emph2={cmdA,cmdB,cmdC,cmdD,envA,envB,envC,envD}
+  }
+
+
+\begin{codestore}[cmd-defs]
+  %% This will match either \cmdA or \cmdC
+\xpeekSetCmd{\detectAC}
+  {\c{cmdA} | \c{cmdC}}
+  {\hspace{5mm} A or C will be next\par}
+  {\hspace{5mm} something else\par}
+
+  %% This will match only \cmdB
+\xpeekSetCmd{\detectB}
+  {\c{cmdB}}
+  {\hspace{5mm} B will be next\par}
+  {\hspace{5mm} something else\par}
+\end{codestore}
+\tscode*[xpeekdemo]{cmd-defs}
+\tsexec{cmd-defs}
+
+
+\begin{codestore}[cmd-defs]
+  % using the pre-defined \detectAC
+\NewDocumentCommand{\cmdA}{m}
+  {\par .. command A (#1).. \par\xpeekTokCmd{\detectAC}}
+
+  % given the matching regular expression directly
+\NewDocumentCommand{\cmdB}{m}
+  {\par .. command B (#1).. \par\xpeekTok{\c{cmdC}}{\hspace{3mm}C will be next\par}{\hspace{3mm}something else\par}}
+
+\NewDocumentCommand{\cmdC}{m}
+  {\par .. command C (#1).. \par}
+\end{codestore}
+
+\tscode*[xpeekdemo]{cmd-defs}[2]
+\tsexec{cmd-defs}[2]
+
+
+\begin{codestore}[demoA]
+  \cmdA{some par for A}
+
+  \cmdA{some par for A, again}
+  
+  \cmdB{some for B}
+  
+  \cmdC{some for C}
+\end{codestore}
+
+\tsdemo[xpeekdemo]{demoA}
+%\tscode
+%\tsdemo*[emph={draw,none},emph2={path},emph3={name},basicstyle={\scriptsize\ttfamily},numbers=left]{demoA}
+%\tsresult
+
+\subsection{Peeking Ahead Environments}
+
+Note that all one need to detect the beginning of an environment is to recognise the sequence \tsobj{\c{begin}} followed by whatever environment one wants to detect:
+
+\begin{codestore}[cmd-defs]
+  %% This will match the begin of two environments: \begin{envA} or \begin{envC}
+\xpeekSetCmd{\detectEnvAC}
+  {\c{begin}(\cB{envA}|\cB{envC})}
+  {\hspace{5mm} envA or envC will be next\par}
+  {\hspace{5mm} something else\par}
+
+  %% This will match only \begin{envB}
+\xpeekSetCmd{\detectEnvB}
+  {\c{begin}\cB{envB}}
+  {\hspace{5mm} B will be next\par}
+  {\hspace{5mm} something else\par}
+\end{codestore}
+\tscode*[xpeekdemo]{cmd-defs}[3]
+\tsexec{cmd-defs}[3]
+
+
+\begin{codestore}[cmd-defs]
+\NewDocumentCommand{\cmdD}{m}
+  {
+    \par .. command D (#1) .. \par
+    \xpeekTok{\c{begin}\cB{envA}}
+      {\hspace{3mm}env A will be next\par}
+      {\hspace{3mm}something else\par}
+  }
+
+\NewDocumentEnvironment{envA}{}
+  {
+    \par beginning of environment A\par
+    
+    %this can be put anywhere in the beginning block... no need to be the last command.
+    \xpeekEnvCmd{envA}
+      {\detectEnvAC}
+  }
+  {
+   \par end of environment A\par
+  }
+  
+\NewDocumentEnvironment{envB}{}
+  {
+    \par beginning of environment B\par
+    
+    %this can be put anywhere in the beginning block... no need to be the last command.
+    \xpeekEnv{envB}
+      {\c{begin}\cB{envC}}
+      {\hspace{3mm}env C will be next\par}
+      {\hspace{3mm}something else\par}
+  }
+  {
+   \par end of environment B\par
+  }
+  
+
+\NewDocumentEnvironment{envC}{}
+  {
+    \par beginning of environment C\par
+  }
+  {
+   \par end of environment C\par
+  }
+
+\end{codestore}
+
+\tscode*[xpeekdemo]{cmd-defs}[4]
+\tsexec{cmd-defs}[4]
+
+
+\begin{codestore}[demoB]
+  \cmdD{some par for D}
+
+  \begin{envA}
+    some text
+  \end{envA}
+  
+  \begin{envC}
+    some text
+  \end{envC}
+  
+
+  \begin{envB}
+    some text
+  \end{envB}
+
+  \begin{envB}
+    some text
+  \end{envB}
+\end{codestore}
+
+\tsdemo[xpeekdemo]{demoB}
+
+%
+ %% if needed
+\printbibliography
+
+\end{document} 
