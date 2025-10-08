@@ -65,5 +65,11 @@ The Current Maintainer of this work is Alceu Frigeri
 
 ## Change log
 
-* Version 1.0 (this)
+* Version 1.1 (this)
+    - adding commands for pre-compiled regular expressions.
+    - nn/TF snafu. fixing name convention. deprecating 'wrong' ones.
+    - documentation.
+
+
+* Version 1.0
     - Initial setup.

@@ -1,0 +1,89 @@
+\documentclass{article}
+\usepackage{xpeekahead}
+
+\ExplSyntaxOn
+
+\bool_new:N \l__frigeri_myenv_next_flag_bool
+
+\NewDocumentEnvironment {myenv} { }
+  {
+   % the first parameter MUST BE the environment name
+   %
+   % outside expl3 code regimé, one could use \xpeekEnv instead.
+   %
+   \xpeekahead_env_set:nnTF {myenv}
+      { \c{begin} \cB{myenv} }
+      { 
+        \bool_set_true:N \l__frigeri_myenv_next_flag_bool 
+        \par \qquad (next ~ will ~ be ~ \texttt{myenv})
+      }
+      { 
+        \bool_set_false:N \l__frigeri_myenv_next_flag_bool 
+        \par \qquad (next ~ will ~ be ~ something  ~ else)
+      }
+
+    \par
+    \textbf { Start ~ of ~ \texttt { myenv } }
+    \par
+    \bool_if:NT \l__frigeri_myenv_next_flag_bool
+      {
+        \par
+        \quad
+        \textit { Previous ~ was ~ another ~ \texttt{myenv}! }
+      }
+  }
+  {
+    \par
+    \textbf {End ~ of ~ \texttt { myenv } }
+    \par
+  }
+
+\NewDocumentCommand {\mycmdA} {m}
+  {
+    \par This ~ is ~ \texttt{mycmdA} ~ with: ~ (#1)
+    %
+    % one could use \xpeekTok instead
+    %
+    \xpeekahead_cmd_peek:nTF
+      { \c{mycmdA} | \c{mycmdB}} 
+      {  \par \qquad (A: ~ next ~ will ~ be ~ \texttt{mycmdA} ~ or ~ \texttt{mycmdB}) }
+      {  \par \qquad (A: ~ next ~ will ~ be ~ something  ~ else) }
+  }
+  
+\NewDocumentCommand {\mycmdB} {m}
+  {
+    \par This ~ is ~ \texttt{mycmdB} ~ with: ~ (#1)
+    \xpeekahead_cmd_peek:nTF
+      { \c{begin} \cB{myenv} }
+      {  \par \qquad (B: ~ next ~ will ~ be ~ \texttt{myenv}) }
+      {  \par \qquad (B: ~ next ~ will ~ be ~ something  ~ else) }
+  }
+  
+
+\ExplSyntaxOff
+
+\begin{document}
+\mycmdB{testing for an environment from a macro}
+
+\begin{myenv}
+\end{myenv}
+
+\begin{myenv}
+\end{myenv}
+
+\begin{quote}
+  A quote
+\end{quote}
+
+\mycmdA{testing for simple macros}
+
+\mycmdB{from B, again}
+
+\begin{myenv}
+\end{myenv}
+
+\begin{myenv}
+\end{myenv}
+
+
+\end{document}

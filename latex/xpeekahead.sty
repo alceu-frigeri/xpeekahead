@@ -12,7 +12,7 @@
 %%
 %% The Current Maintainer of this work is Alceu Frigeri
 %%
-%% This is version {1.0} {2025/09/16}
+%% This is version {1.1} {2025/10/08}
 %%
 %% The list of files that compose this work can be found in the README.md file at
 %% https://ctan.org/pkg/xpeekahead
@@ -22,8 +22,8 @@
 
 \ProvidesExplPackage
     {xpeekahead}
-    {2025/09/16}
-    {1.0}
+    {2025/10/08}
+    {1.1}
     {A simplistic peek ahead set up}
 
 %%%%%%%
@@ -36,8 +36,8 @@
   {
      name        .code:n = {xpeekahead} ,
      prefix      .code:n = {xpeekahead} ,
-     date        .code:n = {2025/09/16},
-     version     .code:n = {1.0} ,
+     date        .code:n = {2025/10/08},
+     version     .code:n = {1.1} ,
      description .code:n = {A simplistic peek ahead set up}
   }
 \cs_if_exist:NF \PkgInfo 
@@ -50,8 +50,26 @@
 %%% End of cut-n-paste
 %%%%%%%
 
+\msg_new:nnnn {xpeekahead} {deprecated}
+  {
+    (ID:#1)~#2 ~ is ~ deprecated.~ use~ '#3' ~ instead
+  }
+  {
+    You~tried~to~use~a~deprecated~command:~#2. Use~'#3'~ instead.
+    ~Error~Code~ ID:<#1>.
+  }
 
-\cs_new_protected:Npn \xpeekahead_set:Nnnn #1#2#3#4
+\keys_define:nn { xpeekahead }
+  {
+    strict .usage:n    = load ,
+    strict .code:n = 
+      {
+        \msg_redirect_module:nnn {xpeekahead}      { warning } { error }
+      } ,
+  }
+\ProcessKeyOptions [xpeekahead]
+
+\cs_new_protected:Npn \xpeekahead_set:NnTF #1#2#3#4
   {
     \cs_set_protected:Npn #1
       {
@@ -61,7 +79,7 @@
       }
   }
   
-\cs_new_protected:Npn \xpeekahead_gset:Nnnn #1#2#3#4
+\cs_new_protected:Npn \xpeekahead_gset:NnTF #1#2#3#4
   {
     \cs_gset_protected:Npn #1
       {
@@ -71,13 +89,46 @@
       }
   }
 
-\cs_new_protected:Nn \xpeekahead_cmd_peek:nnn
+
+\cs_new_protected:Npn \xpeekahead_set:NNTF #1#2#3#4
   {
-    \xpeekahead_set:Nnnn 
+    \cs_set_protected:Npn #1
+      {
+        \peek_regex:NTF {#2} 
+          { #3 }
+          { #4 }        
+      }
+  }
+
+  
+\cs_new_protected:Npn \xpeekahead_gset:NNTF #1#2#3#4
+  {
+    \cs_gset_protected:Npn #1
+      {
+        \peek_regex:NTF {#2}
+          { #3 }
+          { #4 }        
+      }
+  }
+
+
+\cs_new_protected:Nn \xpeekahead_cmd_peek:nTF
+  {
+    \xpeekahead_set:NnTF 
       \__xpeekahead_cmd_peek_aux: 
       { #1 } { #2 } { #3 }     
     \xpeekahead_cmd_peek:N \__xpeekahead_cmd_peek_aux:
   }
+
+
+\cs_new_protected:Nn \xpeekahead_cmd_peek:NTF
+  {
+    \xpeekahead_set:NNTF 
+      \__xpeekahead_cmd_peek_aux: 
+       { #1 }  { #2 } { #3 }     
+    \xpeekahead_cmd_peek:N \__xpeekahead_cmd_peek_aux:
+  }
+  
   
 \cs_new_protected:Nn \xpeekahead_cmd_peek:N
   {
@@ -131,13 +182,25 @@
     \cs_set_eq:NN \__xpeekahead_env_peek_cmd: #2
   }
 
-\cs_new_protected:Npn \xpeekahead_env_set:nnnn #1#2#3#4
+\cs_new_protected:Npn \xpeekahead_env_set:nnTF #1#2#3#4
   {
     \__xpeekahead_set_end:n {#1}
-    \xpeekahead_set:Nnnn 
+    \xpeekahead_set:NnTF 
       \__xpeekahead_env_peek_cmd: 
       { #2 } { #3 } { #4 }
   }
+
+
+\cs_new_protected:Npn \xpeekahead_env_set:nNTF #1#2#3#4
+  {
+    \__xpeekahead_set_end:n {#1}
+    \xpeekahead_set:NNTF 
+      \__xpeekahead_env_peek_cmd: 
+      { #2 } { #3 } { #4 }
+  }
+
+
+
   
 %%%
 %%%
@@ -145,12 +208,68 @@
 %%%
 %%%
 
-\cs_new_eq:NN \xpeekSetCmd \xpeekahead_set:Nnnn
-\cs_new_eq:NN \xpeekSetCmdGlobal \xpeekahead_gset:Nnnn
+\cs_new_eq:NN \xpeekSetCmd \xpeekahead_set:NnTF
+\cs_new_eq:NN \xpeekSetCmdGlobal \xpeekahead_gset:NnTF
 
-\cs_new_eq:NN \xpeekTok \xpeekahead_cmd_peek:nnn
+\cs_new_eq:NN \xpeekTok \xpeekahead_cmd_peek:nTF
 \cs_new_eq:NN \xpeekTokCmd \xpeekahead_cmd_peek:N
 
-\cs_new_eq:NN \xpeekEnv \xpeekahead_env_set:nnnn 
+\cs_new_eq:NN \xpeekEnv \xpeekahead_env_set:nnTF 
 \cs_new_eq:NN \xpeekEnvCmd \xpeekahead_env_set:nN
+
+
+
+%%%
+%%% Argh!!
+%%%
+
+\cs_new_protected:Npn \xpeekahead_set:Nnnn #1#2#3#4
+  {
+    \msg_warning:nnnnn {xpeekahead}{deprecated}
+      {dep~01}{\xpeekahead_set:Nnnn}{\xpeekahead_set:NnTF}
+    \xpeekahead_set:NnTF  #1 {#2}{#3}{#4}
+  }
+\cs_new_protected:Npn \xpeekahead_gset:Nnnn #1#2#3#4
+  {
+    \msg_warning:nnnnn {xpeekahead}{deprecated}
+      {dep~02}{\xpeekahead_gset:Nnnn}{\xpeekahead_gset:NnTF}
+    \xpeekahead_gset:NnTF #1 {#2}{#3}{#4}
+  }
+\cs_new_protected:Npn \xpeekahead_set:NNnn #1#2#3#4
+  {
+    \msg_warning:nnnnn {xpeekahead}{deprecated}
+      {dep~02}{\xpeekahead_set:NNnn}{\xpeekahead_set:NNTF}
+    \xpeekahead_set:NNTF #1 {#2}{#3}{#4}
+  }
+\cs_new_protected:Npn \xpeekahead_gset:NNnn #1#2#3#4
+  {
+    \msg_warning:nnnnn {xpeekahead}{deprecated}
+      {dep~02}{\xpeekahead_gset:NNnn}{\xpeekahead_gset:NNTF}
+    \xpeekahead_gset:NNTF #1 {#2}{#3}{#4}
+  }
+\cs_new_protected:Npn \xpeekahead_cmd_peek:nnn #1#2#3
+  {
+    \msg_warning:nnnnn {xpeekahead}{deprecated}
+      {dep~03}{\xpeekahead_cmd_peek:nnn}{\xpeekahead_cmd_peek:nTF}
+    \xpeekahead_cmd_peek:nTF  {#1} {#2} {#3}
+  }
+\cs_new_protected:Npn \xpeekahead_cmd_peek:Nnn #1#2#3
+  {
+    \msg_warning:nnnnn {xpeekahead}{deprecated}
+      {dep~03}{\xpeekahead_cmd_peek:Nnn}{\xpeekahead_cmd_peek:NTF}
+    \xpeekahead_cmd_peek:NTF  {#1} {#2} {#3}
+  }
+\cs_new_protected:Npn \xpeekahead_env_set:nnnn #1#2#3#4
+  {
+    \msg_warning:nnnnn {xpeekahead}{deprecated}
+      {dep~04}{\xpeekahead_env_set:nnnn}{\xpeekahead_env_set:nnTF}
+    \xpeekahead_env_set:nnTF  {#1} {#2} {#3} {#4}
+  }
+\cs_new_protected:Npn \xpeekahead_env_set:nNnn #1#2#3#4
+  {
+    \msg_warning:nnnnn {xpeekahead}{deprecated}
+      {dep~04}{\xpeekahead_env_set:nNnn}{\xpeekahead_env_set:nNTF}
+    \xpeekahead_env_set:nNTF  {#1} {#2} {#3} {#4}
+  }
+
 
