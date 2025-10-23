@@ -64,6 +64,11 @@ The Current Maintainer of this work is Alceu Frigeri
 -------------
 
 ## Change log
+* Version 1.3 (next)
+    - switching over <pkginfograb> package's info
+    - exanding/completing the set of base conditional commands.
+    - some code optimization (less expansions wherever possible). 
+
 * Version 1.2 (this)
     - a bit of code optimization. (readability and compactness)
     - documentation about variants

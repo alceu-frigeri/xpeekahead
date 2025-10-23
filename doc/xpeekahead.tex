@@ -20,7 +20,7 @@
 %%
 %% The Current Maintainer of this work is Alceu Frigeri
 %%
-%% This is version {1.2} {2025/10/14}
+%% This is version {1.3} {2025/10/23}
 %%
 %% The list of files that compose this work can be found in the README.md file at
 %% https://ctan.org/pkg/xpeekahead
@@ -31,7 +31,7 @@
 \usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
 \usepackage{lmodern}
-\usepackage{codedescribe}
+\usepackage[infograb]{codedescribe}
 \RequirePackage[inline]{enumitem}
 \SetEnumitemKey{miditemsep}{parsep=0ex,itemsep=0.4ex}
 
@@ -55,6 +55,7 @@
 \begin{typesetabstract}
  
 This package offers a few commands aiming at peeking ahead environments and commands in simple cases. It's based on \tsobj[pkg]{expl3} and a question at stackexchange \cite{stackexchange}.
+
 \end{typesetabstract}
 
 \tableofcontents
@@ -77,13 +78,12 @@ Two sets of commands are defined, one to be used in a \tsobj[pkg]{expl3} package
 \end{tsremark}
 
 
-
+\newpage
 \section{Expl3 Commands}\label{expl3-cmds}
 
 When peeking ahead, a regular expression is needed to match against, the commands in \ref{peek-expl3}  have the option to express the regular expression directly, \tsobj[marg]{regex}, with a pre-compiled regex variable, \tsobj[marg]{pre-regex},  or through a pre-defined command, \ref{cmd-def-expl3}.
 \begin{tsremark}[\color{red}Note:]
-These commands aren't \tsobj[pkg]{expl3} conditionals, both \tsobj[marg]{if-true,if-false} parts are always obligatory, the \tsobj{TF} ending is for readability only and each command has a base command with a \tsobj{nn} ending.  To generate variants, use either  \tsobj{\exp_args:} or \tsobj{\cs_generate_variant:}.
-   In case of the last two arguments, \tsobj{TF}, use the \tsobj{nn} base command, e.g., \tsobj{\cs_generate_variant:Nn}\tsobj{\xpeekahead_set:Nnnn {NVVV}}.
+All conditionals, \tsobj{T,F,TF} are defined, it's possible to generate variants with, for instance, \tsobj{\prg_generate_conditional_variant:} None of them is expandable.
 \end{tsremark}
 
 
@@ -116,7 +116,7 @@ The \tsobj{\xpeekahead_set:} will create the new command in the current group, w
 \tsmacro{\xpeekahead_cmd_peek:nTF}{regex,if-true,if-false}
 \tsmacro{\xpeekahead_cmd_peek:NTF}{pre-regex,if-true,if-false}
 \end{codesyntax}
-Those are for the most simple cases, where \tsobj[code,sep=or]{\xpeekahead_cmd_peek:} will be placed at the very end of a command definition. \tsobj[marg]{regex,if-true,if-false} are the same as defined in \ref{cmd-def-expl3} and \tsobj[marg]{cmd} is any command defined using \tsobj[code,sep=or]{\xpeekahead_(g)set:}.
+These are for the most simple cases, where \tsobj[code,sep=or]{\xpeekahead_cmd_peek:} will be placed at the very end of a command definition. \tsobj[marg]{regex,if-true,if-false} are the same as defined in \ref{cmd-def-expl3} and \tsobj[marg]{cmd} is any command defined using \tsobj[code,sep=or]{\xpeekahead_(g)set:}.
 \end{codedescribe}
 
 
@@ -126,7 +126,7 @@ Those are for the most simple cases, where \tsobj[code,sep=or]{\xpeekahead_cmd_p
 \tsmacro{\xpeekahead_env_set:nnTF}{env-name,regex,if-true,if-false}
 \tsmacro{\xpeekahead_env_set:nNTF}{env-name,pre-regex,if-true,if-false}
 \end{codesyntax}
-Those are for the cases where one wants to detect what comes after the end of an environment. In this case, those commands are to be placed in the ``begin part'' of an environment definition. Note that the peek ahead command will be injected past the end of the environment, meaning any local assignment made inside of the environment won't be accessible. 
+These are for the cases where one wants to detect what comes after the end of an environment. In this case, those commands are to be placed in the ``begin part'' of an environment definition. Note that the peek ahead command will be injected past the end of the environment, meaning any local assignment made inside of the environment won't be accessible. 
 
 \tsobj[marg]{regex,if-true,if-false} are the same as defined in \ref{cmd-def-expl3} and \tsobj[marg]{cmd} is any command defined using \tsobj[code,sep=or]{\xpeekahead_(g)set:}.
 \end{codedescribe}
@@ -134,7 +134,7 @@ Those are for the cases where one wants to detect what comes after the end of an
   The \tsobj[marg]{env-name} HAS TO BE the name of the environment being defined. It will be used by the injected function to evaluate if it should peek ahead or not (in case it's called in the context of another  (inner) environment).
 \end{tsremark}
 \begin{tsremark}
-  Those commands are reentrant safe, meaning, the resulting environment can be nested as needed.
+  These commands are reentrant safe, meaning, the resulting environment can be nested as needed.
 \end{tsremark}
 \begin{tsremark}[\color{red}Warning:]
   The peek ahead command injection assumes that the macro ``end '' (with a space at the end of it) doesn't change (thanks David, \cite{stackexchange}). Since the macro capture occurs at the outermost call to \tsobj{\xpeekahead_env_set:} it should be safe.
@@ -172,7 +172,7 @@ The \tsobj{\xpeekSetCmd} will create the new command in the current group, whils
 \tsmacro{\xpeekTokCmd}{cmd}
 \tsmacro{\xpeekTok}{regex,if-true,if-false}
 \end{codesyntax}
-Those are for the most simple cases, where \tsobj[code,sep=or]{\xpeekTokCmd,\xpeekTok} will be placed at the very end of a command definition. \tsobj[marg]{regex,if-true,if-false} are the same as defined in \ref{cmd-def-2e} and \tsobj[marg]{cmd} is any command defined using \tsobj[code,sep=or]{\xpeekSetCmd, \xpeekSetCmdGlobal}.
+These are for the most simple cases, where \tsobj[code,sep=or]{\xpeekTokCmd,\xpeekTok} will be placed at the very end of a command definition. \tsobj[marg]{regex,if-true,if-false} are the same as defined in \ref{cmd-def-2e} and \tsobj[marg]{cmd} is any command defined using \tsobj[code,sep=or]{\xpeekSetCmd, \xpeekSetCmdGlobal}.
 \end{codedescribe}
 
 
@@ -181,7 +181,7 @@ Those are for the most simple cases, where \tsobj[code,sep=or]{\xpeekTokCmd,\xpe
 \tsmacro{\xpeekEnvCmd}{env-name,cmd}
 \tsmacro{\xpeekEnv}{env-name,regex,if-true,if-false}
 \end{codesyntax}
-Those are for the cases where one wants to detect what comes after the end of an environment. In this case, those commands are to be placed in the ``begin part'' of an environment definition. Note that the peek ahead command will be injected past the end of the environment, meaning any local assignment made inside of the environment won't be accessible. 
+These are for the cases where one wants to detect what comes after the end of an environment. In this case, those commands are to be placed in the ``begin part'' of an environment definition. Note that the peek ahead command will be injected past the end of the environment, meaning any local assignment made inside of the environment won't be accessible. 
 
 \tsobj[marg]{regex,if-true,if-false} are the same as defined in \ref{cmd-def-2e} and \tsobj[marg]{cmd} is any command defined using \tsobj[code,sep=or]{\xpeekSetCmd, \xpeekSetCmdGlobal}.
 \end{codedescribe}
@@ -189,7 +189,7 @@ Those are for the cases where one wants to detect what comes after the end of an
   The \tsobj[marg]{env-name} HAS TO BE the name of the environment being defined. It will be used by the injected function to evaluate if it should peek ahead or not (in case it's called in the context of another (inner) environment).
 \end{tsremark}
 \begin{tsremark}
-  Those commands are reentrant safe, meaning, the resulting environment can be nested as needed.
+  These commands are reentrant safe, meaning, the resulting environment can be nested as needed.
 \end{tsremark}
 \begin{tsremark}[\color{red}Warning:]
   The peek ahead command injection assumes that the macro ``end '' (with a space at the end of it) doesn't change (thanks David, \cite{stackexchange}). Since the macro capture  occurs at the outermost call to \tsobj[code,sep=or]{\xpeekEnv,\xpeekEnvCmd} it should be safe.
