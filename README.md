@@ -64,7 +64,11 @@ The Current Maintainer of this work is Alceu Frigeri
 -------------
 
 ## Change log
-* Version 1.3 (this)
+* Version 1.3a (this)
+    - doc/comments typos
+    - final (?) code speed up 
+
+* Version 1.3
     - switching over <pkginfograb> package's info
     - expanding/completing the set of base conditional commands.
     - some code optimization (less expansions wherever possible). 

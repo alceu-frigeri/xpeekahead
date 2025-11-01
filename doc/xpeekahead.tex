@@ -20,7 +20,7 @@
 %%
 %% The Current Maintainer of this work is Alceu Frigeri
 %%
-%% This is version {1.3} {2025/10/23}
+%% This is version {1.3a} {2025/11/01}
 %%
 %% The list of files that compose this work can be found in the README.md file at
 %% https://ctan.org/pkg/xpeekahead
@@ -232,7 +232,7 @@ Of course, in a more real case, one will (instead of adding some conditional tex
   {\hspace{5mm} B will be next\par}
   {\hspace{5mm} something else\par}
 \end{codestore}
-\tscode*[xpeekdemo]{cmd-defs}
+%\tscode*[xpeekdemo]{cmd-defs}
 \tsexec{cmd-defs}
 
 
@@ -249,7 +249,6 @@ Of course, in a more real case, one will (instead of adding some conditional tex
   {\par .. command C (#1).. \par}
 \end{codestore}
 
-\tscode*[xpeekdemo]{cmd-defs}[2]
 \tsexec{cmd-defs}[2]
 
 
@@ -263,6 +262,8 @@ Of course, in a more real case, one will (instead of adding some conditional tex
   \cmdC{some for C}
 \end{codestore}
 
+\tscode*[xpeekdemo]{cmd-defs} 
+\tscode*[xpeekdemo]{cmd-defs}[2]
 \tsdemo[xpeekdemo]{demoA}
 %\tscode
 %\tsdemo*[emph={draw,none},emph2={path},emph3={name},basicstyle={\scriptsize\ttfamily},numbers=left]{demoA}
@@ -270,7 +271,7 @@ Of course, in a more real case, one will (instead of adding some conditional tex
 
 \subsection{Peeking Ahead Environments}
 
-Note that all one needs to detect the beginning of an environment is to recognise the sequence \tsobj{\c{begin}} followed by whatever environment one wants to detect:
+Note that all one needs to detect  an environment is to recognise the sequence \tsobj{\c{begin}} followed by whatever environment one wants to detect:
 
 \begin{codestore}[cmd-defs]
   %% This will match the begin of two environments: \begin{envA} or \begin{envC}
@@ -335,8 +336,6 @@ Note that all one needs to detect the beginning of an environment is to recognis
 
 \end{codestore}
 
-\tscode*[xpeekdemo]{cmd-defs}[4]
-\tsexec{cmd-defs}[4]
 
 
 \begin{codestore}[demoB]
@@ -355,14 +354,19 @@ Note that all one needs to detect the beginning of an environment is to recognis
     some text
   \end{envB}
 
-  \begin{envB}
+  \begin{envC}
     some text
-  \end{envB}
+  \end{envC}
 \end{codestore}
+
+\tsexec{cmd-defs}[4]
+
+\tscode*[xpeekdemo]{cmd-defs}[4]
 
 \tsdemo[xpeekdemo]{demoB}
 
-%
+
+
  %% if needed
 \printbibliography
 
